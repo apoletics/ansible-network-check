@@ -1,0 +1,20 @@
+
+  - name: debug check to host only
+    debug:
+      var: check_to_host
+
+  - name: set variables
+    set_fact:
+      current_to_ip:  "{{lookup('ip', check_to_host ) }}"
+#      current_to_ip:  "{{hostvars[check_to_host]['ansible_default_ipv4']['address']}}"
+      current_protocol: "{{port_definition['type']|lower}}"
+      current_port: "{{port_definition['port']}}"
+
+
+  - name: loop from clients
+    include_tasks: tasks/loop_phase_from_clients.yaml
+    vars:
+      check_from_host: "{{item_from_host}}"
+    with_items: "{{groups[port_definition['from_group']]}}"
+    loop_control:
+      loop_var: item_from_host

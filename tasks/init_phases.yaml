@@ -1,0 +1,9 @@
+  - name: debug only
+    debug:
+      var: port_definition
+
+  - name: looping to servers
+    include_tasks: "loop_phase_to_server.yaml check_to_host={{item_to_host}}"
+    with_items: "{{groups[port_definition['to_group']]}}"
+    loop_control:
+      loop_var: item_to_host

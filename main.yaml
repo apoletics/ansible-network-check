@@ -1,0 +1,37 @@
+- name: Ansible Network Acceessibility Check
+  hosts: localhost
+  ignore_errors: true
+  vars_files: 
+  - port_definition.yaml
+  tasks:
+  - name: print var
+    debug: 
+      var: port_definitions
+
+  - name: Defining fact initialization
+    include_tasks: "tasks/init_phases.yaml port_definition={{item_port}}"
+    with_items: "{{port_definitions}}"
+    loop_control:
+      loop_var: item_port
+    run_once: true
+
+
+  - name: Testing Ports
+    include_tasks: "tasks/start_port_check.yaml port_definition={{item_port}}"
+    with_items: "{{port_definitions}}"
+    loop_control: 
+      loop_var: item_port
+    run_once: true
+
+
+#  - name: Ensure no existing process running
+#    shell: |
+#      for PIDFILE in $(ls /tmp/ansible_network_health_check*/*PID); do
+#         kill -9 $(cat $PIDFILE)
+#      done
+#      exit 0
+
+#  - name: ensure tmp folder doesnot exist for clean start
+#    shell: |
+#      rm -rf /tmp/ansible_network_health_check*
+

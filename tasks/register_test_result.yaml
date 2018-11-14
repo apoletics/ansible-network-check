@@ -1,0 +1,23 @@
+  - name: setup stat result
+    set_fact: 
+      current_protocol: "{{test_result_string.split(' ')[0]}}"
+      current_to_ip: "{{test_result_string.split(' ')[4]}}"
+      current_from_ip: "{{test_result_string.split(' ')[2]}}"
+      current_port: "{{test_result_string.split(' ')[6]}}"
+
+  - name: debug state title - result
+    debug:
+      msg: "TITLE ix: {{current_protocol}}_{{current_from_ip |regex_replace('\\W','_') }}_{{current_to_ip |regex_replace('\\W','_')}}_{{current_port}}"
+
+
+  - name: setup stat result
+    run_once: true
+    set_stats:
+      data:
+        "{{current_protocol|lower}}_{{current_from_ip |regex_replace('\\W','_') }}_{{current_to_ip |regex_replace('\\W','_')}}_{{current_port}}" :
+#        testing_data:
+          protocol: "{{current_protocol}}"
+          from: "{{current_from_ip}}"
+          to: "{{current_to_ip}}"
+          port: "{{current_port}}"
+          result: 'OK'

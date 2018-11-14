@@ -1,0 +1,42 @@
+  - name: set variables
+    set_fact:
+      test_to_ip:  "{{lookup('ip', check_to_host) }}"
+      test_protocol: "{{port_definition['type']|lower}}"
+      test_port: "{{port_definition['port']}}"
+
+  - name: debug check to host only
+    debug:
+      var: check_to_host
+
+  - name: start tcp server
+    include_tasks: tcp_to_server.yaml
+    when: port_definition['type']|lower == 'tcp'
+
+  - name: start udp server
+    include_tasks: udp_to_server.yaml
+    when: port_definition['type']|lower == 'udp'
+
+  - name: start from as client - TCP
+    when: port_definition['type']|lower == 'tcp'
+    include_tasks: tasks/tcp_from_clients.yaml
+    vars:
+      check_from_host: "{{item_from_host}}"
+      ansible_network_health_check_port: "{{test_port}}"
+      ansible_network_health_check_server_ip: "{{test_to_ip}}"
+    with_items: "{{groups[port_definition['from_group']]}}"
+    loop_control:
+      loop_var: item_from_host
+
+  - name: start from as client - UDP
+    when: port_definition['type']|lower == 'udp'
+    include_tasks: tasks/udp_from_clients.yaml
+    vars:
+      check_from_host: "{{item_from_host}}"
+      ansible_network_health_check_port: "{{test_port}}"
+      ansible_network_health_check_server_ip: "{{test_to_ip}}"
+    with_items: "{{groups[port_definition['from_group']]}}"
+    loop_control:
+      loop_var: item_from_host
+
+  - name: check server result - tcp 
+    include_tasks: tasks/server_check.yaml

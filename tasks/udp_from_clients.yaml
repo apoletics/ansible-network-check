@@ -1,0 +1,47 @@
+
+  - name: debug check_from_host
+    debug:
+      var: check_from_host
+
+  - name: set variables
+    set_fact:
+      test_from_ip:  "{{lookup('ip',check_from_host ) }}"
+
+  - name: debug ansible_network_health_check_port
+    debug:
+      var: ansible_network_health_check_port
+
+  - name: ensure tmp folder doesnot exist for clean start
+    delegate_to: "{{check_from_host}}"
+#    when: check_from_host == inventory_hostname
+    file: 
+      path: /tmp/ansible_network_health_check_from/
+      state: absent
+
+  - name: ensure folder exist    
+    delegate_to: "{{check_from_host}}"
+#    when: check_from_host == inventory_hostname 
+    file: 
+      path: /tmp/ansible_network_health_check_from/
+      state: directory
+
+  - name: Copy Python to destination
+    delegate_to: "{{check_from_host}}"
+#    when: check_from_host == inventory_hostname
+    copy:
+      src: files/udpClient.py
+      dest: /tmp/ansible_network_health_check_from/udpClient.py
+
+  - name: Run the echo ping
+    delegate_to: "{{check_from_host}}"
+#    when: check_from_host == inventory_hostname 
+    shell: |
+      cd /tmp/ansible_network_health_check_from/ 
+      python /tmp/ansible_network_health_check_from/udpClient.py {{test_to_ip}} {{test_port}} "{{test_protocol|upper}} FROM {{test_from_ip}} TO {{test_to_ip}} PORT {{test_port}} OK"
+
+  - name: ensure tmp folder doesnot exist for clean start
+    delegate_to: "{{check_from_host}}"
+#    when: check_from_host == inventory_hostname
+    file:
+      path: /tmp/ansible_network_health_check_from/
+      state: absent

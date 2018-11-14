@@ -1,0 +1,26 @@
+
+  - name: debug check to host only
+    debug:
+      var: check_from_host
+
+  - name: set variables
+    set_fact:
+#      current_from_ip: "{{hostvars[check_from_host]['ansible_default_ipv4']['address']}}"
+      current_from_ip:  "{{lookup('ip', check_from_host )}}"
+
+  - name: debug state title
+    debug:
+      msg: "TITLE is: {{current_protocol}}_{{current_from_ip |regex_replace('\\W','_') }}_{{current_to_ip |regex_replace('\\W','_')}}_{{current_port}}"
+
+  - name: init stat
+    run_once: true
+    set_stats:
+      data: 
+        "{{current_protocol}}_{{current_from_ip |regex_replace('\\W','_') }}_{{current_to_ip |regex_replace('\\W','_')}}_{{current_port}}" :
+#        testing_data:
+          protocol: "{{current_protocol}}"
+          from: "{{current_from_ip}}"
+          to: "{{current_to_ip}}"
+          port: "{{current_port}}"
+          result: 'FAILED' 
+

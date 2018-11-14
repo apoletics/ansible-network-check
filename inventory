@@ -1,0 +1,5 @@
+[ansible_network_health_check_from]
+192.168.122.45.nip.io openshift_hostname=192.168.122.45.nip.io openshift_public_hostname=192.168.122.45.nip.io ansible_hostname=192.168.122.45.nip.io
+
+[ansible_network_health_check_to]
+192.168.122.45.nip.io openshift_hostname=192.168.122.45.nip.io openshift_public_hostname=192.168.122.45.nip.io ansible_hostname=192.168.122.45.nip.io

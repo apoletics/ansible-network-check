@@ -1,0 +1,61 @@
+port_definitions:
+- from_group: nodes
+  to_group: nodes
+  type: udp
+  port: 4789
+- from_group: nodes
+  to_group: masters
+  type: udp
+  port: 8053
+- from_group: nodes
+  to_group: masters
+  type: tcp
+  port: 8053
+- from_group: nodes
+  to_group: masters
+  type: tcp
+  port: 8443
+- from_group: masters
+  to_group: nodes
+  type: tcp
+  port: 10250
+- from_group: masters
+  to_group: nodes
+  type: tcp
+  port: 10010
+- from_group: masters
+  to_group: masters
+  type: udp
+  port: 8053
+
+# Optional for NFS
+- from_group: masters
+  to_group: masters
+  type: udp
+  port: 2049
+
+
+- from_group: masters
+  to_group: masters
+  type: tcp
+  port: 2379
+- from_group: masters
+  to_group: masters
+  type: tcp
+  port: 2380
+
+################ addition for 3.11 prometheus monitoring
+- from_group: nodes
+  to_group: nodes
+  type: tcp
+  port: 9100
+
+- from_group: nodes
+  to_group: nodes
+  type: tcp
+  port: 10250
+
+- from_group: nodes
+  to_group: nodes
+  type: udp
+  port: 8444

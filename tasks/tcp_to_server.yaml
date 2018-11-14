@@ -1,0 +1,61 @@
+  - name: Ensure no existing process running
+#    when: check_to_host ==  inventory_hostname
+    delegate_to: "{{check_to_host}}"
+    shell: |
+      kill -9 $(cat /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_PID)
+      exit 0
+
+
+  - name: ensure tmp folder doesnot exist for clean start
+#    when: check_to_host ==  inventory_hostname
+    delegate_to: "{{check_to_host}}"
+    file: 
+      path: /tmp/ansible_network_health_check_to/
+      state: absent
+
+  - name: ensure folder exist    
+#    when: check_to_host ==  inventory_hostname
+    file: 
+      path: /tmp/ansible_network_health_check_to/
+      state: directory
+    delegate_to: "{{check_to_host}}"
+
+  - name: Copy Python to destination
+#    when: check_to_host ==  inventory_hostname
+    copy:
+      src: files/tcpServer.py
+      dest: /tmp/ansible_network_health_check_to/tcpServer.py
+    delegate_to: "{{check_to_host}}"
+
+
+  - name: debug start server
+    delegate_to: "{{check_to_host}}"
+    debug:
+      msg: |
+        python /tmp/ansible_network_health_check_to/tcpServer.py {{test_to_ip}} {{test_port}} /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_OUTPUT &
+
+  - name: Start Server
+    delegate_to: "{{check_to_host}}"
+#    when: check_to_host ==  inventory_hostname
+    shell: |
+      cd /tmp/ansible_network_health_check_to/ 
+      python /tmp/ansible_network_health_check_to/tcpServer.py {{test_to_ip}} {{test_port}} /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_OUTPUT &
+      PID=$!
+      echo $PID > /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_PID
+      sleep 10
+      if [ -f /proc/$PID/status ]
+      then
+         exit 0
+      else
+         exit -1
+      fi
+    async: 45
+    poll: 0
+
+  - name: make sure file Exist
+    delegate_to: "{{check_to_host}}"
+#    when: check_to_host ==  inventory_hostname
+    stat:
+      path: "/proc/{{lookup('file', '/tmp/ansible_network_health_check_to/'+test_protocol+'_'+test_to_ip+'_'+test_port+'_PID') }}/status"
+    register: stat_result
+    failed_when: not stat_result.stat.exists

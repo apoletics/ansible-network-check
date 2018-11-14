@@ -1,0 +1,62 @@
+#- name: Start Testing server
+#  hosts: ansible_network_health_check_from
+#  gather_facts: yes
+#  tasks:
+
+#  - name: Set etcd install 'In Progress'
+#    run_once: true
+#    set_stats:
+#      data:
+#        installer_phase_etcd:
+#          title: "etcd Install"
+#          status: "In Progress"
+#          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+  - name: debug check_from_host
+    debug:
+      var: check_from_host
+
+  - name: set variables
+    set_fact:
+#      test_from_ip:  "{{hostvars[check_from_host]['ansible_default_ipv4']['address']}}"
+      test_from_ip:  "{{lookup('ip',check_from_host ) }}"
+
+  - name: debug ansible_network_health_check_port
+    debug:
+      var: ansible_network_health_check_port
+
+  - name: ensure tmp folder doesnot exist for clean start
+    delegate_to: "{{check_from_host}}"
+#    when: check_from_host == inventory_hostname
+    file: 
+      path: /tmp/ansible_network_health_check_from/
+      state: absent
+
+  - name: ensure folder exist    
+#    when: check_from_host == inventory_hostname 
+    delegate_to: "{{check_from_host}}"
+    file: 
+      path: /tmp/ansible_network_health_check_from/
+      state: directory
+
+  - name: Copy Python to destination
+#    when: check_from_host == inventory_hostname
+    delegate_to: "{{check_from_host}}"
+    copy:
+      src: files/tcpClient.py
+      dest: /tmp/ansible_network_health_check_from/tcpClient.py
+
+  - name: Run the echo ping
+    delegate_to: "{{check_from_host}}"
+#    when: check_from_host == inventory_hostname 
+    shell: |
+      cd /tmp/ansible_network_health_check_from/ 
+      python /tmp/ansible_network_health_check_from/tcpClient.py {{test_to_ip}} {{test_port}} "{{test_protocol|upper}} FROM {{test_from_ip}} TO {{test_to_ip}} PORT {{test_port}} OK"
+
+
+  - name: ensure tmp folder doesnot exist for clean start
+    delegate_to: "{{check_from_host}}"
+#    when: check_from_host == inventory_hostname
+    file:
+      path: /tmp/ansible_network_health_check_from/
+      state: absent
