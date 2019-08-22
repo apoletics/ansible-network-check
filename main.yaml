@@ -1,25 +1,29 @@
 - name: Ansible Network Acceessibility Check
   hosts: localhost
   ignore_errors: true
-  vars_files: 
+  vars_files:
   - port_definition.yaml
   tasks:
   - name: print var
-    debug: 
+    debug:
       var: port_definitions
 
   - name: Defining fact initialization
-    include_tasks: "tasks/init_phases.yaml port_definition={{item_port}}"
-    with_items: "{{port_definitions}}"
+    include: "tasks/init_phases.yaml"
+    vars:
+      port_definition: "{{item_port}}"
+    with_items: "{{ port_definitions }}"
     loop_control:
       loop_var: item_port
     run_once: true
 
 
   - name: Testing Ports
-    include_tasks: "tasks/start_port_check.yaml port_definition={{item_port}}"
+    include: "tasks/start_port_check.yaml"
+    vars:
+     port_definition: "{{item_port}}"
     with_items: "{{port_definitions}}"
-    loop_control: 
+    loop_control:
       loop_var: item_port
     run_once: true
 
@@ -34,4 +38,3 @@
 #  - name: ensure tmp folder doesnot exist for clean start
 #    shell: |
 #      rm -rf /tmp/ansible_network_health_check*
-

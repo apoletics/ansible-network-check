@@ -38,5 +38,5 @@
     loop_control:
       loop_var: item_from_host
 
-  - name: check server result - tcp 
-    include_tasks: tasks/server_check.yaml
+  - name: check server result - tcp
+    include: tasks/server_check.yaml
