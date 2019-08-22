@@ -10,14 +10,14 @@
   - name: ensure tmp folder doesnot exist for clean start
     delegate_to: "{{check_to_host}}"
 #    when: check_to_host ==  inventory_hostname
-    file: 
+    file:
       path: /tmp/ansible_network_health_check_to/
       state: absent
 
-  - name: ensure folder exist    
+  - name: ensure folder exist
     delegate_to: "{{check_to_host}}"
 #    when: check_to_host ==  inventory_hostname
-    file: 
+    file:
       path: /tmp/ansible_network_health_check_to/
       state: directory
 
@@ -32,7 +32,7 @@
     delegate_to: "{{check_to_host}}"
 #    when: check_to_host ==  inventory_hostname
     shell: |
-      cd /tmp/ansible_network_health_check_to/ 
+      cd /tmp/ansible_network_health_check_to/
       python /tmp/ansible_network_health_check_to/udpServer.py {{test_to_ip}} {{test_port}} /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_OUTPUT &
       PID=$!
       echo $PID > /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_PID
