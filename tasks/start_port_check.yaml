@@ -3,7 +3,9 @@
       var: port_definition
 
   - name: start to as server
-    include_tasks: "start_to_servers.yaml check_to_host={{item_to_host}}"
+    include: "start_to_servers.yaml"
+    vars:
+      check_to_host: "{{item_to_host}}"
     with_items: "{{groups[port_definition['to_group']]}}"
     loop_control:
       loop_var: item_to_host
