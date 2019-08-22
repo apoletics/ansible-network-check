@@ -46,10 +46,19 @@
     async: 45
     poll: 0
 
+  - name: register PID of udpServer.py
+    delegate_to: "{{check_to_host}}"
+    shell: "cat /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_PID"
+    register: PID_udpServer
+
+  - name: debug only
+    debug:
+      var: PID_udpServer
+
   - name: make sure file Exist
     delegate_to: "{{check_to_host}}"
 #    when: check_to_host ==  inventory_hostname
     stat:
-      path: "/proc/{{lookup('file', '/tmp/ansible_network_health_check_to/'+test_protocol+'_'+test_to_ip+'_'+test_port+'_PID') }}/status"
+      path: "/proc/{{PID_udpServer.stdout}}/status"
     register: stat_result
     failed_when: not stat_result.stat.exists
