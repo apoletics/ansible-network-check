@@ -2,14 +2,22 @@
 #  hosts: ansible_network_health_check_to
 #  gather_facts: yes
 #  tasks:
-  - name: Check server status
+  - name: Register result of tests
 #    when: check_to_host ==  inventory_hostname
     delegate_to: "{{check_to_host}}"
-    with_lines:
-      - "/tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_OUTPUT"
-    include_tasks: tasks/register_test_result.yaml
+    shell: "cat /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_OUTPUT"
+    register: test_reuslts
+
+  - name: Register result of tests
+    debug:
+      var: test_reuslts
+
+  - name: Check server status
+#    when: check_to_host ==  inventory_hostname
+    include: tasks/register_test_result.yaml
     vars:
       test_result_string: "{{item}}"
+    with_items: "{{test_reuslts.stdout_lines}}"
 
   - name: Ensure no existing process running
     delegate_to: "{{check_to_host}}"
