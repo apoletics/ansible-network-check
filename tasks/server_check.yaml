@@ -4,14 +4,15 @@
 #  tasks:
   - name: Check server status
 #    when: check_to_host ==  inventory_hostname
-    delegated_to: "{{check_to_host}}"
-    with_lines: "cat /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_OUTPUT"
+    delegate_to: "{{check_to_host}}"
+    with_lines:
+      - "/tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_OUTPUT"
     include_tasks: tasks/register_test_result.yaml
-    vars: 
+    vars:
       test_result_string: "{{item}}"
 
   - name: Ensure no existing process running
-    delegated_to: "{{check_to_host}}"
+    delegate_to: "{{check_to_host}}"
 #    when: check_to_host ==  inventory_hostname
     shell: |
       for PIDFILE in $(ls /tmp/ansible_network_health_check_to/*PID); do
@@ -20,9 +21,8 @@
       exit 0
 
   - name: ensure tmp folder doesnot exist for clean start
-    delegated_to: "{{check_to_host}}"
+    delegate_to: "{{check_to_host}}"
 #    when: check_to_host ==  inventory_hostname
     file:
       path: /tmp/ansible_network_health_check_to/
       state: absent
-
