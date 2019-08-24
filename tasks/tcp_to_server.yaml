@@ -5,17 +5,16 @@
       kill -9 $(cat /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_PID)
       exit 0
 
-
   - name: ensure tmp folder doesnot exist for clean start
 #    when: check_to_host ==  inventory_hostname
     delegate_to: "{{check_to_host}}"
-    file: 
+    file:
       path: /tmp/ansible_network_health_check_to/
       state: absent
 
-  - name: ensure folder exist    
+  - name: ensure folder exist
 #    when: check_to_host ==  inventory_hostname
-    file: 
+    file:
       path: /tmp/ansible_network_health_check_to/
       state: directory
     delegate_to: "{{check_to_host}}"
@@ -38,7 +37,7 @@
     delegate_to: "{{check_to_host}}"
 #    when: check_to_host ==  inventory_hostname
     shell: |
-      cd /tmp/ansible_network_health_check_to/ 
+      cd /tmp/ansible_network_health_check_to/
       python /tmp/ansible_network_health_check_to/tcpServer.py {{test_to_ip}} {{test_port}} /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_OUTPUT &
       PID=$!
       echo $PID > /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_PID
@@ -52,10 +51,19 @@
     async: 45
     poll: 0
 
+  - name: register PID of tcpServer.py
+    delegate_to: "{{check_to_host}}"
+    shell: "cat /tmp/ansible_network_health_check_to/{{test_protocol}}_{{test_to_ip}}_{{test_port}}_PID"
+    register: PID_tcpServer
+
+  - name: debug only
+    debug:
+      var: PID_tcpServer
+
   - name: make sure file Exist
     delegate_to: "{{check_to_host}}"
 #    when: check_to_host ==  inventory_hostname
     stat:
-      path: "/proc/{{lookup('file', '/tmp/ansible_network_health_check_to/'+test_protocol+'_'+test_to_ip+'_'+test_port+'_PID') }}/status"
+      path: "/proc/{{PID_tcpServer.stdout}}/status"
     register: stat_result
     failed_when: not stat_result.stat.exists

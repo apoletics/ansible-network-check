@@ -9,16 +9,16 @@
       var: check_to_host
 
   - name: start tcp server
-    include_tasks: tcp_to_server.yaml
+    include: tcp_to_server.yaml
     when: port_definition['type']|lower == 'tcp'
 
   - name: start udp server
-    include_tasks: udp_to_server.yaml
+    include: udp_to_server.yaml
     when: port_definition['type']|lower == 'udp'
 
   - name: start from as client - TCP
     when: port_definition['type']|lower == 'tcp'
-    include_tasks: tasks/tcp_from_clients.yaml
+    include: tasks/tcp_from_clients.yaml
     vars:
       check_from_host: "{{item_from_host}}"
       ansible_network_health_check_port: "{{test_port}}"
@@ -29,7 +29,7 @@
 
   - name: start from as client - UDP
     when: port_definition['type']|lower == 'udp'
-    include_tasks: tasks/udp_from_clients.yaml
+    include: tasks/udp_from_clients.yaml
     vars:
       check_from_host: "{{item_from_host}}"
       ansible_network_health_check_port: "{{test_port}}"
@@ -38,5 +38,5 @@
     loop_control:
       loop_var: item_from_host
 
-  - name: check server result - tcp 
-    include_tasks: tasks/server_check.yaml
+  - name: check server result - tcp
+    include: tasks/server_check.yaml

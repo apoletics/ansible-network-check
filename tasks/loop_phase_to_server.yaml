@@ -12,7 +12,7 @@
 
 
   - name: loop from clients
-    include_tasks: tasks/loop_phase_from_clients.yaml
+    include: tasks/loop_phase_from_clients.yaml
     vars:
       check_from_host: "{{item_from_host}}"
     with_items: "{{groups[port_definition['from_group']]}}"
